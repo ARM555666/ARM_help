@@ -36,6 +36,15 @@ function addToHistory(msg) {
 app.use(express.static(__dirname));
 app.use(express.json());
 
+// Explicit root route for Vercel Serverless
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Discord Bot Client
 let discordClient = null;
 let botStatus = {
