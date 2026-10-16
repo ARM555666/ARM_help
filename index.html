@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Socket.IO Client -->
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Socket.IO Client (CDN for Vercel & Production compatibility) -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
   <style>
     :root {
@@ -773,14 +773,16 @@
 
         socket.on('disconnect', () => {
           socketConnected = false;
-          updateStatus(false);
+          // Let HTTP polling determine the true status on Vercel
+          pollMessages();
         });
       } catch (err) {
         console.warn('Socket.IO not available, using polling');
       }
     }
 
-    // HTTP Polling fallback (ensures 100% operation on Vercel Serverless)
+    // HTTP Polling (Ensures 100% operation on Vercel Serverless)
+    let isFirstPoll = true;
     async function pollMessages() {
       try {
         const res = await fetch('/api/messages');
@@ -792,22 +794,21 @@
           if (data.messages && data.messages.length > 0) {
             data.messages.forEach(m => {
               const prevCount = renderedIds.size;
-              renderMessage(m, false);
-              if (renderedIds.size > prevCount && !socketConnected) {
+              renderMessage(m, !isFirstPoll);
+              if (renderedIds.size > prevCount && !isFirstPoll) {
                 if (m.sender === 'discord' || m.author !== usernameInput.value.trim()) {
                   playChime();
                 }
               }
             });
+            isFirstPoll = false;
           }
         }
       } catch (e) {}
     }
 
-    // Poll every 2.5 seconds if socket is not active or as safety sync
-    setInterval(() => {
-      if (!socketConnected) pollMessages();
-    }, 2500);
+    // Poll every 1.2 seconds for snappy real-time experience
+    setInterval(pollMessages, 1200);
     pollMessages();
 
     // Send Message
@@ -834,6 +835,8 @@
           if (data.msgData) {
             renderMessage(data.msgData, true);
           }
+          // Poll immediately after sending
+          setTimeout(pollMessages, 300);
         } catch (err) {
           console.error('Send error:', err);
         }
