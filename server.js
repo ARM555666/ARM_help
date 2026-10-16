@@ -8,9 +8,9 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// Enable JSON and URL-encoded body
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Enable JSON and URL-encoded body with 50MB limit for photos & videos
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 const PORT = process.env.PORT || 3000;
 const botToken = (process.env.DISCORD_BOT_TOKEN || '').trim();
@@ -114,7 +114,12 @@ async function fetchDiscordMessages() {
           avatar = `https://cdn.discordapp.com/avatars/${m.author.id}/${m.author.avatar}.png`;
         }
 
-        const attachments = (m.attachments || []).map(a => a.url);
+        const attachments = (m.attachments || []).map(a => ({
+          url: a.url,
+          name: a.filename || 'file',
+          contentType: a.content_type || '',
+          size: a.size || 0
+        }));
 
         return {
           id: m.id,
@@ -137,22 +142,46 @@ async function fetchDiscordMessages() {
   return cachedMessages;
 }
 
-// Send Message directly to Discord Channel via REST API
-async function sendDiscordMessage(author, text) {
+// Send Message directly to Discord Channel via REST API (Supports Text, Photo & Video)
+async function sendDiscordMessage(author, text, fileData, fileName, fileType) {
   if (!botToken || !channelId) {
     throw new Error('Bot Token หรือ Channel ID ยังไม่ได้ตั้งค่า');
   }
 
-  const content = `💬 **[${author}]**: ${text}`;
-  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bot ${botToken}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'DiscordWebBridge (https://vercel.app, 1.0.0)'
-    },
-    body: JSON.stringify({ content })
-  });
+  const content = text ? `💬 **[${author}]**: ${text}` : `💬 **[${author}]**`;
+
+  let res;
+  if (fileData) {
+    // Strip data URL scheme prefix if present (e.g. "data:image/png;base64,")
+    const cleanBase64 = fileData.replace(/^data:[^;]+;base64,/, '');
+    const buffer = Buffer.from(cleanBase64, 'base64');
+    const safeType = fileType || 'application/octet-stream';
+    const blob = new Blob([buffer], { type: safeType });
+    const safeFileName = fileName || 'attachment.bin';
+
+    const form = new FormData();
+    form.append('payload_json', JSON.stringify({ content }));
+    form.append('files[0]', blob, safeFileName);
+
+    res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bot ${botToken}`,
+        'User-Agent': 'DiscordWebBridge (https://vercel.app, 1.0.0)'
+      },
+      body: form
+    });
+  } else {
+    res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bot ${botToken}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'DiscordWebBridge (https://vercel.app, 1.0.0)'
+      },
+      body: JSON.stringify({ content })
+    });
+  }
 
   if (!res.ok) {
     const errText = await res.text();
@@ -209,15 +238,25 @@ app.get('/api/messages', async (req, res) => {
 app.post('/api/send', async (req, res) => {
   const text = (req.body.text || '').trim();
   const author = (req.body.author || 'เพื่อน').trim();
+  const fileData = req.body.fileData; // Base64 string
+  const fileName = req.body.fileName;
+  const fileType = req.body.fileType;
 
-  if (!text) {
-    return res.status(400).json({ success: false, error: 'ข้อความว่างเปล่า' });
+  if (!text && !fileData) {
+    return res.status(400).json({ success: false, error: 'ข้อความหรือไฟล์ว่างเปล่า' });
   }
 
   try {
-    const sentMsg = await sendDiscordMessage(author, text);
+    const sentMsg = await sendDiscordMessage(author, text, fileData, fileName, fileType);
     // Invalidate message cache so it shows immediately
     lastMessageFetchTime = 0;
+
+    const formattedAttachments = (sentMsg.attachments || []).map(a => ({
+      url: a.url,
+      name: a.filename || fileName || 'file',
+      contentType: a.content_type || fileType || '',
+      size: a.size || 0
+    }));
 
     const msgData = {
       id: sentMsg.id,
@@ -225,7 +264,7 @@ app.post('/api/send', async (req, res) => {
       author: author,
       avatar: null,
       text: text,
-      attachments: [],
+      attachments: formattedAttachments,
       timestamp: sentMsg.timestamp || new Date().toISOString()
     };
 

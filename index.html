@@ -286,6 +286,7 @@
       gap: 12px;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
+      position: relative;
     }
     .messages-area::-webkit-scrollbar {
       width: 4px;
@@ -293,6 +294,34 @@
     .messages-area::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.12);
       border-radius: 10px;
+    }
+
+    /* Drag & Drop Overlay Zone */
+    .dropzone-overlay {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      background: rgba(88, 101, 242, 0.88);
+      backdrop-filter: blur(10px);
+      border: 2px dashed #fff;
+      border-radius: 16px;
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      pointer-events: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .dropzone-overlay.active {
+      display: flex;
+    }
+    .dropzone-icon {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
     }
 
     /* Empty State */
@@ -439,15 +468,48 @@
       border-top-left-radius: 4px;
     }
 
+    /* Photos & Videos Attachments in Chat */
     .attachment-img {
       margin-top: 6px;
-      border-radius: 10px;
+      border-radius: 12px;
       max-width: 100%;
-      max-height: 220px;
+      max-height: 250px;
       object-fit: cover;
       display: block;
       border: 1px solid var(--panel-border);
-      cursor: pointer;
+      cursor: zoom-in;
+      transition: transform 0.15s;
+    }
+    .attachment-img:hover {
+      transform: scale(1.01);
+    }
+
+    .attachment-video {
+      margin-top: 6px;
+      border-radius: 12px;
+      max-width: 100%;
+      max-height: 280px;
+      display: block;
+      border: 1px solid var(--panel-border);
+      background: #000;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .attachment-file-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      color: var(--accent-web);
+      font-size: 0.82rem;
+      text-decoration: none;
+    }
+    .attachment-file-link:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     /* In-Chat Call Invitation Card */
@@ -509,6 +571,82 @@
       background: linear-gradient(135deg, #059669, #047857);
     }
 
+    /* Selected File Preview Drawer above input */
+    .file-preview-bar {
+      background: rgba(20, 24, 40, 0.95);
+      border-top: 1px solid var(--panel-border);
+      padding: 8px 12px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      animation: popIn 0.2s ease;
+    }
+    .file-preview-bar.show {
+      display: flex;
+    }
+    .preview-media-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .preview-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--panel-border);
+      background: #000;
+      flex-shrink: 0;
+    }
+    .preview-video-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: #000;
+      object-fit: cover;
+      border: 1px solid var(--panel-border);
+      flex-shrink: 0;
+    }
+    .preview-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .preview-filename {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+    .preview-filesize {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .preview-remove-btn {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .preview-remove-btn:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
     /* Bottom Input Bar */
     .input-bar {
       background: var(--bg-panel);
@@ -522,6 +660,31 @@
       gap: 8px;
       flex-shrink: 0;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Attach File Button */
+    .attach-button {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .attach-button:hover {
+      background: rgba(88, 101, 242, 0.25);
+      border-color: var(--accent-discord);
+      transform: translateY(-1px);
+    }
+    .attach-button:active {
+      transform: scale(0.94);
     }
 
     .input-field {
@@ -560,15 +723,45 @@
       box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
       transition: transform 0.15s;
     }
+    .send-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
     .send-button:active {
       transform: scale(0.96);
+    }
+
+    /* Lightbox Modal for Fullscreen Photo View */
+    .lightbox-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+    .lightbox-modal.show {
+      display: flex;
+    }
+    .lightbox-img {
+      max-width: 92vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* ================================================= */
     /* MODALS & CALL WINDOW STYLING                      */
     /* ================================================= */
-
-    /* Modal Backdrop */
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -588,7 +781,6 @@
       display: flex;
     }
 
-    /* Call Launcher Dialog */
     .call-start-card {
       background: var(--bg-panel);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -757,7 +949,6 @@
       display: none;
     }
 
-    /* Call Overlay Header */
     .call-top-bar {
       padding: 14px 20px;
       display: flex;
@@ -810,7 +1001,6 @@
       background: rgba(255, 255, 255, 0.16);
     }
 
-    /* Video Grid Area */
     .call-stage {
       flex: 1;
       position: relative;
@@ -821,7 +1011,6 @@
       overflow: hidden;
     }
 
-    /* Remote Video / Audio Tile */
     .remote-tile {
       width: 100%;
       max-width: 820px;
@@ -846,7 +1035,6 @@
       display: block;
     }
 
-    /* Remote Avatar Fallback */
     .remote-avatar-box {
       display: flex;
       flex-direction: column;
@@ -876,7 +1064,6 @@
       color: #fff;
     }
 
-    /* Local Picture-in-Picture Tile */
     .local-pip {
       position: absolute;
       bottom: 24px;
@@ -898,7 +1085,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* Mirror selfie */
+      transform: scaleX(-1);
       display: none;
     }
     .local-video.has-video {
@@ -921,7 +1108,6 @@
       color: #67e8f9;
     }
 
-    /* Bottom Control Bar */
     .call-controls-bar {
       padding: 16px;
       padding-bottom: max(16px, var(--safe-bottom));
@@ -968,7 +1154,6 @@
       font-size: 1.6rem;
     }
 
-    /* Floating Minimized Call Widget */
     .minimized-call-pill {
       position: fixed;
       bottom: 74px;
@@ -1090,15 +1275,43 @@
 
     <!-- Messages Container -->
     <main class="messages-area" id="messagesArea">
+      <!-- Drag & Drop Overlay Zone -->
+      <div class="dropzone-overlay" id="dropzoneOverlay">
+        <div class="dropzone-icon">📁</div>
+        <div style="font-weight:700; font-size:1.1rem;" id="txt-drop-title">วางรูปภาพหรือวิดีโอที่นี่</div>
+        <div style="font-size:0.82rem; opacity:0.85;" id="txt-drop-sub">เพื่อส่งไฟล์ไปยัง Discord และห้องแชททันที</div>
+      </div>
+
       <div class="empty-state" id="emptyState">
         <div class="empty-icon">💬</div>
         <h3 id="txt-empty-title">เริ่มต้นการสนทนา</h3>
-        <p id="txt-empty-desc">ส่งข้อความที่นี่ หรือกดปุ่ม 📞 โทร ด้านบนเพื่อเริ่มคุยสายเสียง/วิดีโอกับเพื่อนได้ทันที!</p>
+        <p id="txt-empty-desc">ส่งข้อความ รูปภาพ 📸 วิดีโอ 🎥 หรือกดปุ่ม 📞 โทร ด้านบนเพื่อเริ่มคุยสายเสียง/วิดีโอกับเพื่อนได้ทันที!</p>
       </div>
     </main>
 
+    <!-- Selected File Preview Drawer -->
+    <div class="file-preview-bar" id="filePreviewBar">
+      <div class="preview-media-box">
+        <img id="previewThumb" class="preview-thumb" style="display:none;" alt="thumb">
+        <video id="previewVideoThumb" class="preview-video-thumb" style="display:none;" muted></video>
+        <div class="preview-details">
+          <div class="preview-filename" id="previewFileName">filename.jpg</div>
+          <div class="preview-filesize" id="previewFileSize">1.2 MB</div>
+        </div>
+      </div>
+      <button type="button" class="preview-remove-btn" id="removeFileBtn" title="ยกเลิกไฟล์">✖</button>
+    </div>
+
     <!-- Input Bar -->
     <form class="input-bar" id="chatForm">
+      <!-- Hidden file input for images & videos -->
+      <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;">
+
+      <!-- Attachment Button (Clip Icon) -->
+      <button type="button" class="attach-button" id="attachBtn" title="แนบรูปภาพหรือวิดีโอ">
+        📎
+      </button>
+
       <input
         type="text"
         id="messageInput"
@@ -1115,6 +1328,11 @@
         </svg>
       </button>
     </form>
+  </div>
+
+  <!-- Lightbox Modal for Photo viewing -->
+  <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
+    <img id="lightboxImg" class="lightbox-img" alt="preview">
   </div>
 
   <!-- ============================================== -->
@@ -1221,9 +1439,10 @@
       th: {
         nameLabel: "ชื่อ:",
         emptyTitle: "เริ่มต้นการสนทนา",
-        emptyDesc: "ส่งข้อความที่นี่ หรือกดปุ่ม 📞 โทร ด้านบนเพื่อเริ่มคุยสายเสียง/วิดีโอกับเพื่อนได้ทันที!",
+        emptyDesc: "ส่งข้อความ รูปภาพ 📸 วิดีโอ 🎥 หรือกดปุ่ม 📞 โทร ด้านบนเพื่อเริ่มคุยสายเสียง/วิดีโอกับเพื่อนได้ทันที!",
         placeholder: "พิมพ์ข้อความที่นี่...",
         send: "ส่ง",
+        sending: "กำลังส่ง...",
         connecting: "กำลังเชื่อมต่อ...",
         online: "ออนไลน์",
         offline: "ออฟไลน์",
@@ -1244,15 +1463,16 @@
         joinCall: "เข้าร่วมสาย",
         callInvited: "สายโทรเสียง/วิดีโอ",
         you: "คุณ (You)",
-        micOff: "ปิดไมค์อยู่",
-        camOff: "ปิดกล้องอยู่"
+        dropTitle: "วางรูปภาพหรือวิดีโอที่นี่",
+        dropSub: "เพื่อส่งไฟล์ไปยัง Discord และห้องแชททันที"
       },
       zh: {
         nameLabel: "昵称:",
         emptyTitle: "开始实时聊天",
-        emptyDesc: "在此发送消息，或点击上方 📞 通话 开始语音/视频通话！",
+        emptyDesc: "在此发送文字、图片 📸、视频 🎥 或点击上方 📞 通话 发起语音/视频！",
         placeholder: "输入消息...",
         send: "发送",
+        sending: "发送中...",
         connecting: "连接中...",
         online: "已在线",
         offline: "离线",
@@ -1273,15 +1493,16 @@
         joinCall: "加入通话",
         callInvited: "语音/视频通话邀请",
         you: "您 (You)",
-        micOff: "已静音",
-        camOff: "摄像头已关"
+        dropTitle: "在此拖放图片或视频",
+        dropSub: "即可立即同步发送至 Discord 频道"
       },
       en: {
         nameLabel: "Name:",
         emptyTitle: "Start Chatting",
-        emptyDesc: "Send a message here or click 📞 Call above to start a voice/video call!",
+        emptyDesc: "Send text, photos 📸, videos 🎥 or click 📞 Call above to talk with friends!",
         placeholder: "Type a message...",
         send: "Send",
+        sending: "Sending...",
         connecting: "Connecting...",
         online: "Online",
         offline: "Offline",
@@ -1302,8 +1523,8 @@
         joinCall: "Join Call",
         callInvited: "Voice/Video Call",
         you: "You",
-        micOff: "Muted",
-        camOff: "Camera Off"
+        dropTitle: "Drop photo or video here",
+        dropSub: "to send immediately to Discord & web chat"
       }
     };
 
@@ -1327,6 +1548,8 @@
       document.getElementById('txt-incoming-sub').innerText = t.incomingSub;
       document.getElementById('btnCopyCallLink').innerText = t.copyLink;
       document.getElementById('txt-local-label').innerText = t.you;
+      document.getElementById('txt-drop-title').innerText = t.dropTitle;
+      document.getElementById('txt-drop-sub').innerText = t.dropSub;
 
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`btn-${lang}`).classList.add('active');
@@ -1432,9 +1655,23 @@
     const emptyState = document.getElementById('emptyState');
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const txtSendBtn = document.getElementById('txt-send-btn');
     const statusDot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
 
+    // Attachment controls
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('fileInput');
+    const filePreviewBar = document.getElementById('filePreviewBar');
+    const previewThumb = document.getElementById('previewThumb');
+    const previewVideoThumb = document.getElementById('previewVideoThumb');
+    const previewFileName = document.getElementById('previewFileName');
+    const previewFileSize = document.getElementById('previewFileSize');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    const dropzoneOverlay = document.getElementById('dropzoneOverlay');
+
+    let selectedFile = null;
     let renderedIds = new Set();
     let currentBotChannel = null;
 
@@ -1486,6 +1723,18 @@
       return null;
     }
 
+    // Lightbox handlers
+    function openLightbox(url) {
+      const modal = document.getElementById('lightboxModal');
+      const img = document.getElementById('lightboxImg');
+      img.src = url;
+      modal.classList.add('show');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.remove('show');
+    }
+
     function renderMessage(msg, animate = true) {
       if (!msg || !msg.id || renderedIds.has(msg.id)) return;
       renderedIds.add(msg.id);
@@ -1514,11 +1763,31 @@
         ? `<span class="badge badge-discord">Discord</span>`
         : `<span class="badge badge-web">Web</span>`;
 
-      // Attachments
+      // Render Attachments (Photos, Videos, Files)
       let attachmentsHtml = '';
       if (msg.attachments && msg.attachments.length > 0) {
-        msg.attachments.forEach(url => {
-          attachmentsHtml += `<a href="${url}" target="_blank"><img src="${url}" class="attachment-img" alt="image" loading="lazy"></a>`;
+        msg.attachments.forEach(att => {
+          let url = typeof att === 'string' ? att : att.url;
+          let name = typeof att === 'object' && att.name ? att.name : '';
+          let cType = typeof att === 'object' && att.contentType ? att.contentType.toLowerCase() : '';
+          const isVideo = cType.startsWith('video/') || /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(url);
+          const isImage = cType.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i.test(url);
+
+          if (isVideo) {
+            attachmentsHtml += `
+              <video src="${url}" controls playsinline preload="metadata" class="attachment-video"></video>
+            `;
+          } else if (isImage) {
+            attachmentsHtml += `
+              <img src="${url}" class="attachment-img" alt="${escapeHtml(name) || 'image'}" loading="lazy" onclick="openLightbox('${url}')">
+            `;
+          } else {
+            attachmentsHtml += `
+              <a href="${url}" target="_blank" class="attachment-file-link" download>
+                <span>📁</span> <span>${escapeHtml(name) || 'ดาวน์โหลดไฟล์'}</span>
+              </a>
+            `;
+          }
         });
       }
 
@@ -1560,7 +1829,7 @@
             <span class="msg-time">${formatTime(msg.timestamp)}</span>
           </div>
           <div class="bubble">
-            ${messageContentHtml}
+            ${messageContentHtml ? `<div>${messageContentHtml}</div>` : ''}
             ${attachmentsHtml}
           </div>
         </div>
@@ -1639,38 +1908,166 @@
     setInterval(pollMessages, 1200);
     pollMessages();
 
-    // Send Message
-    async function sendMessage(text) {
-      const author = usernameInput.value.trim() || 'เพื่อน';
-      if (!text) return;
+    // ==============================================
+    // ATTACHMENT UPLOAD HANDLING (PHOTO & VIDEO)
+    // ==============================================
+    attachBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
 
-      if (socketConnected && socket) {
-        socket.emit('send_message', { text, author });
-      } else {
-        try {
-          const res = await fetch('/api/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, author })
-          });
-          const data = await res.json();
-          if (data.msgData) {
-            renderMessage(data.msgData, true);
-          }
-          setTimeout(pollMessages, 300);
-        } catch (err) {
-          console.error('Send error:', err);
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFileSelected(file);
+    });
+
+    function handleFileSelected(file) {
+      // 25 MB max size check
+      if (file.size > 25 * 1024 * 1024) {
+        alert('ไฟล์มีขนาดเกิน 25MB กรุณาเลือกไฟล์ที่เล็กลง');
+        fileInput.value = '';
+        return;
+      }
+
+      selectedFile = file;
+      previewFileName.innerText = file.name;
+      previewFileSize.innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (file.type.startsWith('image/')) {
+          previewThumb.src = e.target.result;
+          previewThumb.style.display = 'block';
+          previewVideoThumb.style.display = 'none';
+        } else if (file.type.startsWith('video/')) {
+          previewVideoThumb.src = e.target.result;
+          previewVideoThumb.style.display = 'block';
+          previewThumb.style.display = 'none';
+        } else {
+          previewThumb.style.display = 'none';
+          previewVideoThumb.style.display = 'none';
         }
+        filePreviewBar.classList.add('show');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    removeFileBtn.addEventListener('click', () => {
+      clearSelectedFile();
+    });
+
+    function clearSelectedFile() {
+      selectedFile = null;
+      fileInput.value = '';
+      filePreviewBar.classList.remove('show');
+      previewThumb.src = '';
+      previewVideoThumb.src = '';
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Drag & Drop
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzoneOverlay.classList.add('active');
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      if (e.relatedTarget === null) {
+        dropzoneOverlay.classList.remove('active');
+      }
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzoneOverlay.classList.remove('active');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFileSelected(e.dataTransfer.files[0]);
+      }
+    });
+
+    // Clipboard Paste (Ctrl + V for screenshots/images)
+    window.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].kind === 'file') {
+          const file = items[i].getAsFile();
+          if (file) {
+            handleFileSelected(file);
+            break;
+          }
+        }
+      }
+    });
+
+    // Send Message / Attachments
+    async function sendMessage(text, filePayload = null) {
+      const author = usernameInput.value.trim() || 'เพื่อน';
+      if (!text && !filePayload) return;
+
+      const bodyData = { text, author };
+      if (filePayload) {
+        bodyData.fileData = filePayload.fileData;
+        bodyData.fileName = filePayload.fileName;
+        bodyData.fileType = filePayload.fileType;
+      }
+
+      try {
+        const res = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData)
+        });
+        const data = await res.json();
+        if (data.msgData) {
+          renderMessage(data.msgData, true);
+        }
+        setTimeout(pollMessages, 300);
+      } catch (err) {
+        console.error('Send error:', err);
+        throw err;
       }
     }
 
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = messageInput.value.trim();
-      if (!text) return;
+      if (!text && !selectedFile) return;
+
+      const currentFile = selectedFile;
+      const t = i18n[currentLang];
+
+      sendBtn.disabled = true;
+      const originalSendText = txtSendBtn.innerText;
+      txtSendBtn.innerText = t.sending || 'กำลังส่ง...';
+
       messageInput.value = '';
-      await sendMessage(text);
-      messageInput.focus();
+      clearSelectedFile();
+
+      try {
+        let filePayload = null;
+        if (currentFile) {
+          const b64 = await readFileAsBase64(currentFile);
+          filePayload = {
+            fileData: b64,
+            fileName: currentFile.name,
+            fileType: currentFile.type
+          };
+        }
+        await sendMessage(text, filePayload);
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการส่ง: ' + err.message);
+      } finally {
+        sendBtn.disabled = false;
+        txtSendBtn.innerText = originalSendText;
+        messageInput.focus();
+      }
     });
 
     // ==============================================
@@ -1724,7 +2121,6 @@
 
     let pendingIncoming = null;
 
-    // Open/Close Call Launcher Dialog
     document.getElementById('btnOpenCallModal').addEventListener('click', () => {
       callStartModal.classList.add('show');
     });
@@ -1733,7 +2129,6 @@
       callStartModal.classList.remove('show');
     }
 
-    // Timer functions
     function startTimer() {
       activeCallState.startTime = Date.now();
       if (activeCallState.timerInterval) clearInterval(activeCallState.timerInterval);
@@ -1756,7 +2151,6 @@
       miniTimer.innerText = '00:00';
     }
 
-    // Audio Visualizer for Voice Activity Pulse
     let audioContext = null;
     let analyserRemote = null;
     let visualizerTimer = null;
@@ -1804,7 +2198,6 @@
       remoteAvatarCircle.classList.remove('speaking');
     }
 
-    // Get Media Stream (Mic + Optional Camera)
     async function getMediaStream(wantVideo) {
       const constraints = {
         audio: {
@@ -1822,13 +2215,11 @@
       try {
         return await navigator.mediaDevices.getUserMedia(constraints);
       } catch (err) {
-        console.warn('Failed with video constraints, falling back to audio only', err);
-        // Fallback to audio only
+        console.warn('Video constraints failed, falling back to audio only', err);
         return await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       }
     }
 
-    // START A NEW CALL (HOST)
     async function startCall(wantVideo) {
       closeCallStartModal();
       const myName = usernameInput.value.trim() || 'เพื่อน';
@@ -1840,7 +2231,6 @@
       activeCallState.isVideo = wantVideo;
       activeCallState.inCall = true;
 
-      // Show Call Overlay
       activeCallOverlay.classList.add('active');
       activeCallOverlay.classList.remove('minimized');
       minimizedCallBar.classList.remove('show');
@@ -1857,7 +2247,6 @@
 
         peer.on('open', (id) => {
           callStatusText.innerText = t.waitingCall;
-          // Send Invitation Link to Discord & Web Chat
           const callUrl = `${window.location.origin}${window.location.pathname}?call=${roomId}`;
           const inviteText = `${wantVideo ? '📹' : '📞'} เริ่มสายโทรคุยเสียง/วิดีโอ! คลิกเพื่อเข้าร่วมการสนทนา: ${callUrl}`;
           sendMessage(inviteText);
@@ -1881,7 +2270,6 @@
         peer.on('error', (err) => {
           console.error('Peer error:', err);
           if (err.type === 'unavailable-id') {
-            // Already taken, join as guest instead
             joinExistingCall(roomId, wantVideo);
           }
         });
@@ -1892,7 +2280,6 @@
       }
     }
 
-    // JOIN AN EXISTING CALL (GUEST)
     async function joinExistingCall(roomId, wantVideo) {
       const t = i18n[currentLang];
       activeCallState.roomId = roomId;
@@ -1967,7 +2354,6 @@
       setupAudioActivityDetection(stream);
     }
 
-    // Toggle Microphone (Mute / Unmute)
     function toggleMic() {
       if (!activeCallState.localStream) return;
       const audioTrack = activeCallState.localStream.getAudioTracks()[0];
@@ -1979,7 +2365,6 @@
       }
     }
 
-    // Toggle Camera (On / Off)
     async function toggleCam() {
       if (!activeCallState.localStream) return;
       const currentVideoTrack = activeCallState.localStream.getVideoTracks()[0];
@@ -1998,7 +2383,6 @@
           localAvatarMini.style.display = 'none';
         }
       } else {
-        // Upgrade audio-only to video
         try {
           const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
           const newTrack = newStream.getVideoTracks()[0];
@@ -2024,7 +2408,6 @@
       }
     }
 
-    // Screen Sharing
     async function toggleScreenShare() {
       if (!activeCallState.localStream || !activeCallState.call) return;
       try {
@@ -2074,7 +2457,6 @@
       attachLocalStream(activeCallState.localStream, !!camTrack);
     }
 
-    // End / Hang Up Call
     function endCall(sendNotice = true) {
       const t = i18n[currentLang];
       stopTimer();
@@ -2118,7 +2500,6 @@
       remoteAvatarBox.style.display = 'flex';
     }
 
-    // Window Minimize & Restore
     function minimizeCallWindow() {
       activeCallOverlay.classList.add('minimized');
       minimizedCallBar.classList.add('show');
@@ -2143,7 +2524,6 @@
       });
     }
 
-    // Incoming Call Handlers
     function triggerIncomingCall(callerName, roomId, isVideo) {
       if (activeCallState.inCall) return;
       pendingIncoming = { callerName, roomId, isVideo };
